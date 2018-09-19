@@ -1,0 +1,57 @@
+#include <pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+ 
+pthread_t tid[1000];
+pthread_mutex_t mtx;
+float sum=0;
+ 
+double r()
+{
+    return (double)rand() / (double)RAND_MAX ;
+}
+ 
+float distanta(float x,float y,float z,float t)
+{
+ 
+        return sqrt((x-y)*(x-y)+(z-t)*(z-t));
+}
+ 
+void* function(void* arg)
+{
+        int nr=*(int*)arg;
+        int i;
+        pthread_mutex_lock(&mtx);
+        printf("Thread %d : \n",nr);
+        for(i=0;i<10;i++)
+                {
+                        float random1=r();
+                        float random2=r();
+                        float random3=r();
+                        float random4=r();
+                        sum=sum+distanta(random1,random2,random3,random4);
+                }
+        printf("\n");
+        printf("Sum: %f \n",sum);
+        pthread_mutex_unlock(&mtx);
+ 
+}
+ 
+int main()
+{
+        srand(time(0));
+        pthread_mutex_init(&mtx,NULL);
+         int nr[1000];
+        int i;
+        for(i=0;i<1000;i++)
+                nr[i]=i;
+        for(i=0;i<1000;i++)
+                pthread_create(&tid[i],NULL,function,&nr[i]);
+        for(i=0;i<1000;i++)
+                pthread_join(tid[i],NULL);
+ 
+        printf("Result: %f \n", sum/10000);
+        return 0;
+}
